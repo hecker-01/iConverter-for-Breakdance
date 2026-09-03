@@ -1,0 +1,16 @@
+iConverter includes the following third-party software:
+
+PathKit (Skia), version 1.0.0
+Copyright 2018 Google LLC
+License: BSD 3-Clause
+https://github.com/google/skia/tree/main/modules/pathkit
+
+zip.js, version 2.9.0
+Copyright Gildas Lormeau
+License: BSD 3-Clause
+https://github.com/gildas-lormeau/zip.js
+
+@xmldom/xmldom, version 0.9.12
+Copyright 2012-2026 xmldom contributors
+License: MIT
+https://github.com/xmldom/xmldom

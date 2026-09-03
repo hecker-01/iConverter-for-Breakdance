@@ -1,0 +1,465 @@
+.iconverter-app {
+  --ic-ink: #111827;
+  --ic-muted: #64748b;
+  --ic-line: #dbe3ec;
+  --ic-soft: #f6f8fb;
+  --ic-accent: #111827;
+  --ic-success: #087443;
+  --ic-error: #b42318;
+  color: var(--ic-ink);
+  font-family: inherit;
+  margin: 2rem auto;
+  max-width: 72rem;
+}
+
+.iconverter-app *,
+.iconverter-app *::before,
+.iconverter-app *::after {
+  box-sizing: border-box;
+}
+
+.iconverter-shell {
+  background: #fff;
+  overflow: hidden;
+}
+
+.iconverter-header {
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3rem) 1.25rem;
+}
+
+.iconverter-header h2,
+.iconverter-rename h3 {
+  color: var(--ic-ink);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.iconverter-header h2 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.iconverter-header > p:last-child {
+  color: var(--ic-muted);
+  margin: 0.75rem 0 0;
+}
+
+.iconverter-dropzone {
+  align-items: center;
+  background: var(--ic-soft);
+  border: 2px dashed #aab7c7;
+  border-radius: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0 clamp(1.25rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+  outline: none;
+  padding: clamp(2rem, 6vw, 4.5rem) 1rem;
+  text-align: center;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.iconverter-dropzone:hover,
+.iconverter-dropzone.is-dragging,
+.iconverter-dropzone:focus-visible {
+  background: #eef3f8;
+  border-color: var(--ic-accent);
+  box-shadow: 0 0 0 4px rgb(17 24 39 / 10%);
+}
+
+.iconverter-download-icon {
+  align-items: center;
+  background: var(--ic-ink);
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  height: 3rem;
+  justify-content: center;
+  width: 3rem;
+}
+
+.iconverter-download-icon svg {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.iconverter-dropzone strong {
+  font-size: 1.05rem;
+}
+
+.iconverter-file-input {
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.iconverter-button,
+.iconverter-link {
+  border: 0;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.75rem 1rem;
+}
+
+.iconverter-button {
+  background: #e8edf3;
+  color: var(--ic-ink);
+}
+
+.iconverter-button-primary {
+  background: var(--ic-accent);
+  color: #fff;
+}
+
+.iconverter-button-quiet {
+  background: transparent;
+  color: var(--ic-muted);
+}
+
+.iconverter-button:hover:not(:disabled),
+.iconverter-link:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.iconverter-button:focus-visible,
+.iconverter-link:focus-visible,
+.iconverter-field input:focus-visible,
+.iconverter-check input:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 30%);
+  outline-offset: 2px;
+}
+
+.iconverter-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.iconverter-rename,
+.iconverter-results {
+  padding: clamp(1.25rem, 4vw, 2rem) clamp(1.25rem, 4vw, 3rem);
+}
+
+.iconverter-rename h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.iconverter-fields {
+  align-items: end;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(12rem, 2fr) auto minmax(8rem, 1fr) minmax(8rem, 1fr);
+}
+
+.iconverter-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.iconverter-field > span,
+.iconverter-check > span {
+  color: #344054;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.iconverter-field input {
+  background: #fff;
+  border: 1px solid #b8c3d1;
+  border-radius: 0.55rem;
+  color: var(--ic-ink);
+  font: inherit;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+}
+
+.iconverter-check {
+  align-items: center;
+  display: flex;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  white-space: nowrap;
+}
+
+.iconverter-check input {
+  height: 1rem;
+  width: 1rem;
+}
+
+.iconverter-error,
+.iconverter-row-error {
+  color: var(--ic-error);
+}
+
+.iconverter-error {
+  font-weight: 700;
+  margin: 0.75rem 0 0;
+}
+
+.iconverter-table-wrap {
+  overflow: visible;
+}
+
+.iconverter-summary {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.iconverter-progress-label {
+  align-items: baseline;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.iconverter-progress-label span {
+  color: var(--ic-muted);
+  font-size: 0.8125rem;
+}
+
+.iconverter-progress {
+  background: #dbe3ec;
+  border-radius: 999px;
+  display: flex;
+  height: 0.8rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.iconverter-progress > span {
+  height: 100%;
+  transition: width 180ms ease;
+}
+
+.iconverter-progress-complete {
+  background: var(--ic-success);
+}
+
+.iconverter-progress-failed {
+  background: var(--ic-error);
+}
+
+.iconverter-counts {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+}
+
+.iconverter-count {
+  align-items: center;
+  color: #344054;
+  display: inline-flex;
+  font-size: 0.8125rem;
+  gap: 0.4rem;
+}
+
+.iconverter-count i {
+  background: #94a3b8;
+  border-radius: 50%;
+  height: 0.55rem;
+  width: 0.55rem;
+}
+
+.iconverter-count-complete i {
+  background: var(--ic-success);
+}
+
+.iconverter-count-failed i {
+  background: var(--ic-error);
+}
+
+.iconverter-more-info {
+  margin-left: auto;
+}
+
+.iconverter-failure-details {
+  border-top: 1px solid var(--ic-line);
+  margin-top: 1.25rem;
+  padding-top: 0.35rem;
+}
+
+.iconverter-results table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin: 0;
+  min-width: 48rem;
+  width: 100%;
+}
+
+.iconverter-results th,
+.iconverter-results td {
+  border-bottom: 1px solid var(--ic-line);
+  padding: 0.9rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.iconverter-results th {
+  color: var(--ic-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.iconverter-name {
+  display: inline-block;
+  max-width: 19rem;
+  overflow-wrap: anywhere;
+}
+
+.iconverter-output-name {
+  color: #344054;
+}
+
+.iconverter-status {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 700;
+  gap: 0.45rem;
+}
+
+.iconverter-status > span {
+  background: #94a3b8;
+  border-radius: 50%;
+  height: 0.55rem;
+  width: 0.55rem;
+}
+
+.status-complete .iconverter-status {
+  color: var(--ic-success);
+}
+
+.status-complete .iconverter-status > span {
+  background: var(--ic-success);
+}
+
+.status-failed .iconverter-status,
+.status-failed .iconverter-row-error {
+  color: var(--ic-error);
+}
+
+.status-failed .iconverter-status > span {
+  background: var(--ic-error);
+}
+
+.status-converting .iconverter-status > span {
+  animation: iconverter-pulse 900ms ease-in-out infinite alternate;
+  background: #2563eb;
+}
+
+.iconverter-row-error {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  max-width: 24rem;
+}
+
+.iconverter-link {
+  background: transparent;
+  color: #175cd3;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.iconverter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 1.25rem;
+}
+
+.iconverter-live {
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+@keyframes iconverter-pulse {
+  to { opacity: 0.25; }
+}
+
+@media (max-width: 760px) {
+  .iconverter-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .iconverter-check {
+    min-height: auto;
+  }
+
+  .iconverter-table-wrap {
+    overflow: visible;
+  }
+
+  .iconverter-results table,
+  .iconverter-results tbody,
+  .iconverter-results tr,
+  .iconverter-results td {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .iconverter-progress-label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .iconverter-more-info {
+    margin-left: 0;
+  }
+
+  .iconverter-results thead {
+    display: none;
+  }
+
+  .iconverter-results tr {
+    border-bottom: 1px solid var(--ic-line);
+    padding: 0.75rem 0;
+  }
+
+  .iconverter-results td {
+    border: 0;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    padding: 0.4rem 0;
+  }
+
+  .iconverter-results td::before {
+    color: var(--ic-muted);
+    content: attr(data-label);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .iconverter-toolbar {
+    justify-content: stretch;
+  }
+
+  .iconverter-toolbar .iconverter-button {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconverter-dropzone { transition: none; }
+  .iconverter-progress > span { transition: none; }
+  .status-converting .iconverter-status > span { animation: none; }
+}

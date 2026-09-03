@@ -1,0 +1,170 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: iConverter 0.3.6\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Loading converter…"
+msgstr "Converter wordt geladen…"
+
+msgid "SVG converter"
+msgstr "SVG omzetten"
+
+msgid "Drop SVG files or a ZIP archive here."
+msgstr "Sleep SVG-bestanden of een zipbestand hierheen."
+
+msgid "Drop SVG or ZIP files here"
+msgstr "Sleep je SVG- of zipbestanden hierheen"
+
+msgid "Browse files"
+msgstr "Bestanden kiezen"
+
+msgid "Rename output files"
+msgstr "Bestandsnamen aanpassen"
+
+msgid "Remove matching text"
+msgstr "Tekst uit de bestandsnaam verwijderen"
+
+msgid "Text or regular expression"
+msgstr "Tekst of reguliere expressie"
+
+msgid "Use regular expression"
+msgstr "Als reguliere expressie gebruiken"
+
+msgid "Add prefix"
+msgstr "Tekst vooraan toevoegen"
+
+msgid "Add suffix"
+msgstr "Tekst achteraan toevoegen"
+
+msgid "Prefix"
+msgstr "Voorvoegsel"
+
+msgid "Suffix"
+msgstr "Achtervoegsel"
+
+msgid "Source file"
+msgstr "Bronbestand"
+
+msgid "Output file"
+msgstr "Uitvoerbestand"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Conversion progress"
+msgstr "Voortgang"
+
+msgid "%1$d of %2$d processed"
+msgstr "%1$d van %2$d verwerkt"
+
+msgid "More info"
+msgstr "Meer informatie"
+
+msgid "Hide info"
+msgstr "Informatie verbergen"
+
+msgid "Failure reason"
+msgstr "Foutmelding"
+
+msgid "Actions"
+msgstr "Acties"
+
+msgid "Queued"
+msgstr "In wachtrij"
+
+msgid "Converting"
+msgstr "Bezig met converteren"
+
+msgid "Complete"
+msgstr "Voltooid"
+
+msgid "Failed"
+msgstr "Mislukt"
+
+msgid "Download SVG"
+msgstr "SVG downloaden"
+
+msgid "Download all"
+msgstr "Alles downloaden"
+
+msgid "Retry failed"
+msgstr "Mislukte bestanden opnieuw proberen"
+
+msgid "Clear all"
+msgstr "Alles verwijderen"
+
+msgid "Invalid regular expression: %s"
+msgstr "Ongeldige reguliere expressie: %s"
+
+msgid "The conversion engine could not be loaded."
+msgstr "De converter kon niet worden geladen."
+
+msgid "Only SVG and ZIP files are supported."
+msgstr "Alleen SVG- en ZIP-bestanden worden ondersteund."
+
+msgid "The ZIP archive does not contain any SVG files."
+msgstr "Het ZIP-archief bevat geen SVG-bestanden."
+
+msgid "Encrypted ZIP archives are not supported."
+msgstr "Versleutelde ZIP-archieven worden niet ondersteund."
+
+msgid "Nested ZIP archives are not supported."
+msgstr "Geneste ZIP-archieven worden niet ondersteund."
+
+msgid "The ZIP archive is invalid or unsafe."
+msgstr "Het ZIP-archief is ongeldig of onveilig."
+
+msgid "Choose at least one SVG or ZIP file."
+msgstr "Kies minstens één SVG- of zipbestand."
+
+msgid "%1$d files completed; %2$d failed."
+msgstr "%1$d bestanden verwerkt; %2$d mislukt."
+
+msgid "The file is not valid SVG XML."
+msgstr "Het bestand bevat geen geldige SVG-XML."
+
+msgid "The SVG needs a valid viewBox or numeric width and height."
+msgstr "De SVG moet een geldige viewBox of een numerieke breedte en hoogte hebben."
+
+msgid "The SVG contains an invalid attribute value."
+msgstr "De SVG bevat een ongeldige attribuutwaarde."
+
+msgid "The SVG contains an invalid transform."
+msgstr "De SVG bevat een ongeldige transformatie."
+
+msgid "The SVG contains invalid shape geometry."
+msgstr "De SVG bevat een ongeldige vorm."
+
+msgid "A path could not be converted."
+msgstr "Een pad kon niet worden geconverteerd."
+
+msgid "The SVG contains an unsupported element."
+msgstr "De SVG bevat een niet-ondersteund element."
+
+msgid "The SVG contains an unsupported visual attribute."
+msgstr "De SVG bevat een visuele eigenschap die niet wordt ondersteund."
+
+msgid "The SVG contains unsupported CSS."
+msgstr "De SVG bevat niet-ondersteunde CSS."
+
+msgid "The SVG contains unsafe active content."
+msgstr "De SVG bevat onveilige actieve inhoud."
+
+msgid "External and URL references are not supported."
+msgstr "Externe verwijzingen en URL's worden niet ondersteund."
+
+msgid "Partial opacity cannot be converted to solid black paths."
+msgstr "Gedeeltelijke transparantie kan niet worden omgezet naar volledig zwarte paden."
+
+msgid "Dashed strokes are not supported."
+msgstr "Gestreepte lijnen worden niet ondersteund."
+
+msgid "The SVG does not contain visible supported geometry."
+msgstr "De SVG bevat geen zichtbare vormen die kunnen worden verwerkt."
+
+msgid "The conversion engine is unavailable."
+msgstr "De converter is niet beschikbaar."
