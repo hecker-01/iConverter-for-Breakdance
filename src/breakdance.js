@@ -1,166 +1,138 @@
 import { convertSvg, isAlreadyConverted } from './svg-converter.js';
 
 let pathKitPromise = null;
-const convertedCache = new Set();
-
-function getBreakdanceConfig() {
-  return (typeof window !== 'undefined' && window.iconverterBreakdanceConfig) || {};
-}
+const convertedCache = new Map();
+const hooked = new WeakSet();
+const uploadAction = 'breakdance_upload_icons';
 
 export function loadEngine() {
-  if (pathKitPromise) return pathKitPromise;
-
-  pathKitPromise = (async () => {
-    const config = getBreakdanceConfig();
-    const wasmUrl = config.wasmUrl;
-    if (!wasmUrl) {
-      return null;
-    }
-
-    if (typeof globalThis.PathKitInit !== 'function') {
-      return null;
-    }
-
-    try {
+  if (!pathKitPromise) {
+    pathKitPromise = (async () => {
+      const wasmUrl = globalThis.window?.iconverterBreakdanceConfig?.wasmUrl;
+      if (!wasmUrl || typeof globalThis.PathKitInit !== 'function') {
+        throw new Error('SVG conversion engine is unavailable');
+      }
       const response = await fetch(wasmUrl);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const wasmBinary = await response.arrayBuffer();
-      const pathKit = await globalThis.PathKitInit({ wasmBinary });
-      return pathKit;
-    } catch (err) {
-      console.warn('[iConverter] Could not initialize PathKit for Breakdance:', err);
-      return null;
-    }
-  })();
-
+      return globalThis.PathKitInit({ wasmBinary: await response.arrayBuffer() });
+    })().catch((error) => {
+      pathKitPromise = null;
+      throw error;
+    });
+  }
   return pathKitPromise;
 }
 
 export async function convertIconSvg(svgSource) {
-  if (typeof svgSource !== 'string' || !svgSource.trim()) return svgSource;
-
-  if (convertedCache.has(svgSource) || isAlreadyConverted(svgSource)) {
-    return svgSource;
+  if (typeof svgSource !== 'string' || !svgSource.trim()) {
+    throw new Error('Icon SVG is empty');
   }
-
-  const pathKit = await loadEngine();
-  if (!pathKit) {
-    return svgSource;
+  if (isAlreadyConverted(svgSource)) return svgSource;
+  if (!convertedCache.has(svgSource)) {
+    const pending = loadEngine().then((engine) => convertSvg(svgSource, engine)).catch((error) => {
+      convertedCache.delete(svgSource);
+      throw error;
+    });
+    convertedCache.set(svgSource, pending);
   }
-
-  try {
-    const converted = convertSvg(svgSource, pathKit);
-    convertedCache.add(converted);
-    convertedCache.add(svgSource);
-    return converted;
-  } catch (err) {
-    console.warn('[iConverter] Icon conversion error:', err);
-    if (typeof window !== 'undefined' && window.Breakdance?.NotificationLogger?.errorMessage) {
-      window.Breakdance.NotificationLogger.errorMessage(
-        `iConverter: Could not convert icon (${err.message || err.code || 'unsupported SVG'})`
-      );
-    }
-    return svgSource;
-  }
+  return convertedCache.get(svgSource);
 }
 
-export function hookFileReader() {
-  if (typeof FileReader === 'undefined') return;
-  const originalReadAsText = FileReader.prototype.readAsText;
+function reportError(error) {
+  const reason = error.code === 'unsupportedElement' ? `Unsupported SVG element: ${error.detail}` : error.message || 'unsupported SVG';
+  const message = `iConverter: Could not upload icons (${reason})`;
+  console.error(message, error);
+  globalThis.window?.Breakdance?.NotificationLogger?.log?.errorMessage?.(message);
+}
 
-  FileReader.prototype.readAsText = function (file, encoding) {
-    const isSvg = file && (
-      (file.type && file.type === 'image/svg+xml') ||
-      (file.name && file.name.toLowerCase().endsWith('.svg') && file.name.toLowerCase() !== 'symbol-defs.svg')
-    );
+async function convertIcons(icons) {
+  if (!icons || typeof icons !== 'object') throw new Error('Invalid icon payload');
+  const result = Array.isArray(icons) ? [] : {};
+  for (const [key, icon] of Object.entries(icons)) {
+    result[key] = icon && typeof icon === 'object' && 'svgCode' in icon
+      ? { ...icon, svgCode: await convertIconSvg(icon.svgCode) }
+      : icon;
+  }
+  return result;
+}
 
-    if (isSvg) {
-      loadEngine();
-      const originalOnLoadEnd = this.onloadend;
-      const self = this;
+// Return null for unrelated traffic; copy payloads so failures cannot partially mutate them.
+export function prepareUpload(body, url = '') {
+  let urlAction;
+  try { urlAction = new URL(url, globalThis.location?.href || 'http://localhost').searchParams.get('action'); } catch { /* Not a URL. */ }
+  const form = typeof FormData !== 'undefined' && body instanceof FormData;
+  const params = body instanceof URLSearchParams;
+  let data;
+  let json = false;
+  if (form || params) data = body;
+  else if (typeof body === 'string') {
+    try {
+      data = JSON.parse(body);
+      json = data !== null && typeof data === 'object';
+    } catch { /* Form encoded body. */ }
+    if (!json) data = new URLSearchParams(body);
+  } else return null;
+  const action = json ? data.action : data.get('action');
+  if ((action || urlAction) !== uploadAction) return null;
 
-      this.onloadend = async function (event) {
-        if (typeof self.result === 'string') {
-          if (!isAlreadyConverted(self.result) && !convertedCache.has(self.result)) {
-            try {
-              const converted = await convertIconSvg(self.result);
-              Object.defineProperty(self, 'result', {
-                value: converted,
-                writable: true,
-                configurable: true,
-              });
-            } catch (err) {
-              console.warn('[iConverter] FileReader conversion error:', err);
-            }
-          }
-        }
-        if (typeof originalOnLoadEnd === 'function') {
-          originalOnLoadEnd.call(self, event);
-        }
-      };
+  return async () => {
+    if (json) {
+      if (!('icons' in data)) throw new Error('Missing icons in upload');
+      const icons = typeof data.icons === 'string' ? JSON.parse(data.icons) : data.icons;
+      const converted = await convertIcons(icons);
+      return JSON.stringify({ ...data, icons: typeof data.icons === 'string' ? JSON.stringify(converted) : converted });
     }
-
-    return originalReadAsText.call(this, file, encoding);
+    const output = form ? new FormData() : new URLSearchParams();
+    let found = false;
+    for (const [key, value] of data.entries()) {
+      let converted = value;
+      if (/^icons(?:\[[^\]]+\]\[svgCode\]|\.[^.]+\.svgCode)$/.test(key)) {
+        converted = await convertIconSvg(value);
+        found = true;
+      } else if (key === 'icons' && typeof value === 'string') {
+        converted = JSON.stringify(await convertIcons(JSON.parse(value)));
+        found = true;
+      }
+      output.append(key, converted);
+    }
+    if (!found) throw new Error('Missing icons in upload');
+    return form || params ? output : output.toString();
   };
 }
 
 export function hookFetch() {
-  if (typeof window === 'undefined' || typeof window.fetch !== 'function') return;
+  if (typeof window === 'undefined' || typeof window.fetch !== 'function' || hooked.has(window)) return;
+  hooked.add(window);
   const originalFetch = window.fetch;
-
   window.fetch = async function (input, init) {
-    if (init && init.method && init.method.toUpperCase() === 'POST' && init.body) {
-      try {
-        let isUploadIcons = false;
-        let formData = null;
-
-        if (init.body instanceof FormData) {
-          if (init.body.get('action') === 'breakdance_upload_icons') {
-            isUploadIcons = true;
-            formData = init.body;
-          }
-        } else if (typeof init.body === 'string' && init.body.includes('breakdance_upload_icons')) {
-          const params = new URLSearchParams(init.body);
-          if (params.get('action') === 'breakdance_upload_icons') {
-            isUploadIcons = true;
-            for (const [key, value] of Array.from(params.entries())) {
-              if ((key.includes('[svgCode]') || key.endsWith('.svgCode')) && typeof value === 'string') {
-                if (!isAlreadyConverted(value) && !convertedCache.has(value)) {
-                  const converted = await convertIconSvg(value);
-                  params.set(key, converted);
-                }
-              }
-            }
-            init.body = params.toString();
-          }
-        }
-
-        if (isUploadIcons && formData) {
-          const entries = Array.from(formData.entries());
-          for (const [key, value] of entries) {
-            if ((key.includes('[svgCode]') || key.endsWith('.svgCode')) && typeof value === 'string') {
-              if (!isAlreadyConverted(value) && !convertedCache.has(value)) {
-                const converted = await convertIconSvg(value);
-                formData.set(key, converted);
-              }
-            }
-          }
-        }
-      } catch (err) {
-        console.error('[iConverter] Error intercepting breakdance_upload_icons fetch:', err);
+    const request = typeof Request !== 'undefined' && input instanceof Request;
+    const method = init?.method || (request ? input.method : 'GET');
+    if (method.toUpperCase() !== 'POST') return originalFetch.call(this, input, init);
+    try {
+      let body = init?.body;
+      if (body == null && request) {
+        const type = input.headers.get('content-type') || '';
+        body = type.includes('multipart/form-data') ? await input.clone().formData() : await input.clone().text();
       }
+      const convert = prepareUpload(body, request ? input.url : String(input));
+      if (!convert) return originalFetch.call(this, input, init);
+      const converted = await convert();
+      const options = { ...init, body: converted };
+      // A cloned multipart body gets a new boundary from the browser.
+      if (typeof FormData !== 'undefined' && converted instanceof FormData) {
+        options.headers = new Headers(init?.headers || (request ? input.headers : undefined));
+        options.headers.delete('content-type');
+      }
+      return originalFetch.call(this, input, options);
+    } catch (error) {
+      reportError(error);
+      throw error;
     }
-
-    return originalFetch.apply(this, arguments);
   };
 }
 
 export function initBreakdanceIntegration() {
-  hookFileReader();
   hookFetch();
-  loadEngine();
 }
 
-if (typeof window !== 'undefined') {
-  initBreakdanceIntegration();
-}
+if (typeof window !== 'undefined') initBreakdanceIntegration();

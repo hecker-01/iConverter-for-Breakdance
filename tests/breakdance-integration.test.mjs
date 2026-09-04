@@ -57,7 +57,7 @@ test('conversion produces clean output and avoids converting already converted i
 test('Breakdance builder integration script exports expected handlers and avoids re-conversion', async () => {
   const breakdanceSource = await readFile(new URL('../src/breakdance.js', import.meta.url), 'utf8');
   assert.match(breakdanceSource, /breakdance_upload_icons/);
-  assert.match(breakdanceSource, /hookFileReader/);
+  assert.doesNotMatch(breakdanceSource, /FileReader/);
   assert.match(breakdanceSource, /hookFetch/);
   assert.match(breakdanceSource, /isAlreadyConverted/);
   assert.match(breakdanceSource, /convertedCache/);
