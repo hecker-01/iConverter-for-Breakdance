@@ -10,6 +10,6 @@ mkdir -p "$project_dir/dist"
 rm -f "$archive"
 
 cd "$project_dir/plugin"
-zip -qr "$archive" iconverter -x 'iconverter/languages/untitled'
+zip -qr "$archive" iconverter
 
 printf '%s\n' "Created $archive"

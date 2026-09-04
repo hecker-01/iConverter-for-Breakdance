@@ -24,9 +24,6 @@ export async function syncVersion(projectDir) {
     [/^( \* Version:\s*).+$/m, `$1${version}`],
     [/(define\( 'ICONVERTER_VERSION', ')[^']+(' \);)/, `$1${version}$2`],
   ]);
-  await replaceVersion(resolve(projectDir, 'plugin/iconverter/languages/iconverter-nl_NL.po'), [
-    [/^("Project-Id-Version: iConverter ).+(\\n")$/m, `$1${version}$2`],
-  ]);
   await replaceVersion(resolve(projectDir, 'README.md'), [
     [/(dist\/iconverter-)[^`]+(\.zip)/, `$1${version}$2`],
   ]);

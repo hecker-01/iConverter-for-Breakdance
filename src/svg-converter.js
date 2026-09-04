@@ -658,3 +658,40 @@ export function convertSvg(svgSource, pathKit, Parser = globalThis.DOMParser) {
 
   return `<svg viewBox="${viewBox}" fill="black" xmlns="${SVG_NS}">\n${paths.map((data) => `  <path d="${data}"/>`).join('\n')}\n</svg>`;
 }
+
+export function isAlreadyConverted(svgSource, Parser = globalThis.DOMParser) {
+  if (typeof svgSource !== 'string' || !svgSource.trim()) return false;
+  if (!svgSource.includes('<svg') || !svgSource.includes('</svg>')) return false;
+  if (!Parser) return false;
+
+  try {
+    const document = createParser(Parser).parseFromString(svgSource, 'image/svg+xml');
+    if (document.getElementsByTagName('parsererror').length) return false;
+    const root = document.documentElement;
+    if (!root || tagName(root) !== 'svg') return false;
+    if (root.namespaceURI && root.namespaceURI !== SVG_NS) return false;
+
+    const rootAttrs = Array.from(root.attributes).map((a) => a.name.toLowerCase());
+    const validRootAttrs = new Set(['xmlns', 'viewbox', 'fill']);
+    if (!rootAttrs.every((name) => validRootAttrs.has(name))) return false;
+    if (root.getAttribute('fill') !== 'black') return false;
+    if (!root.getAttribute('viewBox')) return false;
+
+    const children = Array.from(root.childNodes).filter((node) => node.nodeType === 1);
+    if (!children.length) return false;
+
+    for (const child of children) {
+      if (tagName(child) !== 'path') return false;
+      const childAttrs = Array.from(child.attributes).map((a) => a.name.toLowerCase());
+      if (childAttrs.length !== 1 || childAttrs[0] !== 'd') return false;
+      if (!child.getAttribute('d')) return false;
+    }
+
+    if (root.getElementsByTagName('*').length !== children.length) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+

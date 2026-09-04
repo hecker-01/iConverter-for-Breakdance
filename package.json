@@ -1,6 +1,6 @@
 {
-  "name": "iconverter-wordpress-plugin",
-  "version": "0.3.6",
+  "name": "iconverter-for-breakdance",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,12 +10,10 @@
     "build": "npm run build:assets && sh scripts/build-zip.sh"
   },
   "dependencies": {
-    "@zip.js/zip.js": "2.9.0",
     "pathkit-wasm": "1.0.0"
   },
   "devDependencies": {
     "@xmldom/xmldom": "0.9.12",
-    "esbuild": "0.25.9",
-    "gettext-parser": "8.0.0"
+    "esbuild": "0.25.9"
   }
 }
