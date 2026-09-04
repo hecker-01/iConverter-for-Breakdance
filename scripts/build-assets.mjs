@@ -37,6 +37,16 @@ await build({
   legalComments: 'none',
 });
 
+await build({
+  entryPoints: [resolve(projectDir, 'src/breakdance.js')],
+  outfile: resolve(pluginDir, 'assets/js/breakdance.min.js'),
+  bundle: true,
+  minify: true,
+  format: 'iife',
+  target: ['es2020'],
+  legalComments: 'none',
+});
+
 await copyFile(
   require.resolve('pathkit-wasm/bin/pathkit.js'),
   resolve(pluginDir, 'assets/js/pathkit.js'),

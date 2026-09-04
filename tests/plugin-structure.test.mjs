@@ -18,20 +18,23 @@ test('declares the expected WordPress plugin metadata', () => {
   assert.match(source, /Domain Path:\s*\/languages/);
 });
 
-test('prevents direct execution and registers only converter', () => {
+test('prevents direct execution and registers only icon-converter', () => {
   assert.match(source, /if\s*\(\s*!\s*defined\(\s*'ABSPATH'\s*\)\s*\)\s*\{\s*exit;/s);
   const registrations = [...source.matchAll(/add_shortcode\(\s*'([^']+)'/g)];
-  assert.deepEqual(registrations.map((match) => match[1]), ['converter']);
+  assert.deepEqual(registrations.map((match) => match[1]), ['icon-converter']);
 });
 
-test('loads local assets only from the shortcode', () => {
+test('loads local assets from the shortcode and integrates with Breakdance', () => {
   assert.match(source, /assets\/js\/pathkit\.js/);
   assert.match(source, /assets\/js\/converter\.min\.js/);
   assert.match(source, /assets\/wasm\/pathkit\.wasm/);
   assert.match(source, /data-iconverter-config/);
   assert.match(source, /function iconverter_render_converter[\s\S]*wp_enqueue_style\( 'iconverter' \)/);
   assert.match(source, /function iconverter_render_converter[\s\S]*wp_enqueue_script\( 'iconverter' \)/);
-  assert.doesNotMatch(source, /wp_ajax|register_rest_route|media_handle_upload/);
+  assert.match(source, /add_action\(\s*'breakdance_builder_footer'/);
+  assert.match(source, /assets\/js\/breakdance\.min\.js/);
+  assert.match(source, /add_action\(\s*'wp_ajax_breakdance_upload_icons'/);
+  assert.doesNotMatch(source, /register_rest_route|media_handle_upload/);
 });
 
 test('ships Dutch translations for the public interface', () => {

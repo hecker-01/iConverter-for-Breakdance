@@ -133,4 +133,158 @@ function iconverter_render_converter() {
 	);
 }
 
-add_shortcode( 'converter', 'iconverter_render_converter' );
+add_shortcode( 'icon-converter', 'iconverter_render_converter' );
+
+/**
+ * Register and enqueue Breakdance Builder integration scripts.
+ */
+function iconverter_register_breakdance_builder_assets() {
+	$base_url = plugin_dir_url( __FILE__ );
+
+	wp_register_script( 'iconverter-pathkit', $base_url . 'assets/js/pathkit.js', array(), '1.0.0', true );
+	wp_register_script(
+		'iconverter-breakdance',
+		$base_url . 'assets/js/breakdance.min.js',
+		array( 'iconverter-pathkit' ),
+		ICONVERTER_VERSION,
+		true
+	);
+
+	$config = array(
+		'wasmUrl'    => $base_url . 'assets/wasm/pathkit.wasm',
+		'pathkitUrl' => $base_url . 'assets/js/pathkit.js',
+	);
+
+	wp_localize_script( 'iconverter-breakdance', 'iconverterBreakdanceConfig', $config );
+	wp_enqueue_script( 'iconverter-breakdance' );
+	wp_print_scripts( array( 'iconverter-breakdance' ) );
+}
+add_action( 'breakdance_builder_footer', 'iconverter_register_breakdance_builder_assets' );
+
+/**
+ * Check whether an SVG string already has solid-black path-only output structure.
+ *
+ * @param string $svg_source
+ * @return bool
+ */
+function iconverter_is_already_converted_svg( $svg_source ) {
+	if ( ! is_string( $svg_source ) || '' === trim( $svg_source ) ) {
+		return false;
+	}
+	if ( false === stripos( $svg_source, '<svg' ) || false === stripos( $svg_source, '</svg>' ) ) {
+		return false;
+	}
+	if ( preg_match( '/<(rect|circle|ellipse|line|polyline|polygon|g|defs|clippath|text|image|use)\b/i', $svg_source ) ) {
+		return false;
+	}
+	if ( preg_match( '/\b(stroke|transform|style)\s*=/i', $svg_source ) ) {
+		return false;
+	}
+	if ( ! preg_match( '/<path\b/i', $svg_source ) ) {
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Locate the SVG conversion script if available.
+ *
+ * @return string|false
+ */
+function iconverter_get_convert_script_path() {
+	$candidates = array(
+		__DIR__ . '/scripts/convert-svg.mjs',
+		dirname( __DIR__, 2 ) . '/scripts/convert-svg.mjs',
+		'/Users/stagiair/Documents/iconverter/scripts/convert-svg.mjs',
+	);
+
+	foreach ( $candidates as $path ) {
+		if ( file_exists( $path ) ) {
+			return $path;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Convert an SVG using the CLI converter script.
+ *
+ * @param string $svg_source
+ * @return string|false
+ */
+function iconverter_convert_svg_cli( $svg_source ) {
+	$script_path = iconverter_get_convert_script_path();
+	if ( ! $script_path ) {
+		return false;
+	}
+
+	$repo_dir = dirname( $script_path, 2 );
+	$descriptors = array(
+		0 => array( 'pipe', 'r' ),
+		1 => array( 'pipe', 'w' ),
+		2 => array( 'pipe', 'w' ),
+	);
+	$env = array(
+		'PATH'      => getenv( 'PATH' ),
+		'NODE_PATH' => $repo_dir . '/node_modules',
+	);
+
+	$process = proc_open( 'node ' . escapeshellarg( $script_path ), $descriptors, $pipes, $repo_dir, $env );
+	if ( ! is_resource( $process ) ) {
+		return false;
+	}
+
+	fwrite( $pipes[0], $svg_source );
+	fclose( $pipes[0] );
+
+	$output = stream_get_contents( $pipes[1] );
+	fclose( $pipes[1] );
+	fclose( $pipes[2] );
+
+	$status = proc_close( $process );
+	if ( 0 === $status && ! empty( $output ) ) {
+		return $output;
+	}
+
+	return false;
+}
+
+/**
+ * Server-side fallback/safeguard for Breakdance icon uploads.
+ */
+function iconverter_intercept_breakdance_upload_icons() {
+	if ( ! isset( $_POST['icons'] ) || ! is_array( $_POST['icons'] ) ) {
+		return;
+	}
+
+	$needs_conversion = false;
+	foreach ( $_POST['icons'] as $icon ) {
+		if ( isset( $icon['svgCode'] ) && ! iconverter_is_already_converted_svg( $icon['svgCode'] ) ) {
+			$needs_conversion = true;
+			break;
+		}
+	}
+
+	if ( ! $needs_conversion ) {
+		return;
+	}
+
+	$converted_icons = array();
+	foreach ( $_POST['icons'] as $icon ) {
+		if ( isset( $icon['svgCode'] ) && ! iconverter_is_already_converted_svg( $icon['svgCode'] ) ) {
+			$converted = iconverter_convert_svg_cli( $icon['svgCode'] );
+			if ( $converted ) {
+				$icon['svgCode'] = $converted;
+			}
+		}
+		$converted_icons[] = $icon;
+	}
+
+	if ( function_exists( '\Breakdance\Icons\upload_icons' ) && isset( $_POST['iconSet'] ) && is_array( $_POST['iconSet'] ) ) {
+		\Breakdance\Icons\upload_icons( $converted_icons, $_POST['iconSet'] );
+		wp_send_json( (object) array(), 200 );
+	}
+}
+add_action( 'wp_ajax_breakdance_upload_icons', 'iconverter_intercept_breakdance_upload_icons', 5 );
+
