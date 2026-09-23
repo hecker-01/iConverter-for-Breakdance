@@ -10,6 +10,10 @@ mkdir -p "$project_dir/dist"
 rm -f "$archive"
 
 cd "$project_dir/plugin"
-zip -qr "$archive" iconverter
+zip -qr "$archive" iconverter \
+	-x 'iconverter/THIRD-PARTY-NOTICES.txt' \
+	-x 'iconverter/*.zip' \
+	-x '*/.DS_Store' \
+	-x '*/__MACOSX/*'
 
 printf '%s\n' "Created $archive"

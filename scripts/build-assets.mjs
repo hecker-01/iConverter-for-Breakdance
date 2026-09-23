@@ -1,4 +1,4 @@
-import { copyFile, mkdir } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,7 @@ await mkdir(resolve(pluginDir, 'assets/wasm'), { recursive: true });
 
 await build({
   entryPoints: [resolve(projectDir, 'src/breakdance.js')],
-  outfile: resolve(pluginDir, 'assets/js/breakdance.min.js'),
+  outfile: resolve(pluginDir, 'assets/js/svg-converter.min.js'),
   bundle: true,
   minify: true,
   format: 'iife',
@@ -24,9 +24,19 @@ await build({
   legalComments: 'none',
 });
 
-await copyFile(
-  require.resolve('pathkit-wasm/bin/pathkit.js'),
+const pathKitAttribution = `/*
+ * PathKit — part of the Skia project
+ * Copyright (c) 2011 Google Inc. All rights reserved.
+ * Licensed under the BSD 3-Clause License.
+ * See LICENSE-pathkit.txt in this plugin's root directory.
+ */
+
+`;
+const pathKitSource = await readFile(require.resolve('pathkit-wasm/bin/pathkit.js'), 'utf8');
+
+await writeFile(
   resolve(pluginDir, 'assets/js/pathkit.js'),
+  pathKitAttribution + pathKitSource,
 );
 await copyFile(
   require.resolve('pathkit-wasm/bin/pathkit.wasm'),

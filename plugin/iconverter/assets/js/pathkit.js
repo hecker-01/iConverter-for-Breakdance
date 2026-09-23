@@ -1,3 +1,10 @@
+/*
+ * PathKit — part of the Skia project
+ * Copyright (c) 2011 Google Inc. All rights reserved.
+ * Licensed under the BSD 3-Clause License.
+ * See LICENSE-pathkit.txt in this plugin's root directory.
+ */
+
 
 var PathKitInit = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;

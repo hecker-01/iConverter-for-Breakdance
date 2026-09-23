@@ -26,7 +26,7 @@ function iconverter_register_breakdance_builder_assets() {
 	wp_register_script( 'iconverter-pathkit', $base_url . 'assets/js/pathkit.js', array(), '1.0.0', true );
 	wp_register_script(
 		'iconverter-breakdance',
-		$base_url . 'assets/js/breakdance.min.js',
+		$base_url . 'assets/js/svg-converter.min.js',
 		array( 'iconverter-pathkit' ),
 		ICONVERTER_VERSION,
 		true

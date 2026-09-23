@@ -1,6 +1,7 @@
 iConverter includes the following third-party software:
 
 PathKit (Skia), version 1.0.0
-Copyright 2018 Google LLC
+Copyright (c) 2011 Google Inc. All rights reserved.
 License: BSD 3-Clause
+Full license text: LICENSE-pathkit.txt
 https://github.com/google/skia/tree/main/modules/pathkit
